@@ -1,1 +1,372 @@
-hello all tops 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>umang Photo Studio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+      color: #333;
+      background: #f5f5f7;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: #111; color: #f0f0f0; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(250,250,250,0.8);
+      backdrop-filter: blur(10px);
+      padding: 1rem;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    body.dark header { background: rgba(20,20,20,0.9); }
+    nav a {
+      margin: 0 1rem;
+      color: #0071e3;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav a:hover { color: #005bb5; }
+    body.dark nav a { color: #66aaff; }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 1rem;
+      background: linear-gradient(180deg, #e5e5ea, #f5f5f7);
+    }
+    body.dark .hero { background: linear-gradient(180deg, #222, #111); }
+    .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 600; }
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.6rem;
+      background: #0071e3;
+      color: #fff;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .btn:hover { transform: scale(1.05); background: #005bb5; }
+
+    section { padding: 3rem 1rem; opacity: 0; transform: translateY(50px); transition: all 1s ease; }
+    section.show { opacity: 1; transform: translateY(0); }
+    h2 { text-align: center; margin-bottom: 2rem; font-size: 2rem; font-weight: 500; }
+
+    .feature { margin-bottom: 3rem; display: flex; flex-wrap: wrap; align-items: center; gap: 2rem; }
+    .feature img {
+      flex: 1 1 300px;
+      max-width: 500px;
+      border-radius: 12px;
+      transition: transform 0.5s;
+      object-fit: cover;
+      width: 100%;
+    }
+    .feature img:hover { transform: scale(1.05); }
+    .feature div { flex: 1 1 300px; }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      justify-items: center;
+    }
+    .gallery img {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .gallery img:hover { transform: translateY(-6px); }
+
+    /* Lightbox with zoom */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(15px);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    .lightbox.show { display: flex; }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 70%;
+      border-radius: 12px;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    .lightbox.show img { transform: scale(1); opacity: 1; }
+    .lightbox .close {
+      position: absolute;
+      top: 20px; right: 40px;
+      font-size: 2rem; color: #fff;
+      cursor: pointer;
+    }
+    .lightbox .arrow {
+      position: absolute; top: 50%;
+      font-size: 3rem; color: white;
+      cursor: pointer; user-select: none;
+      padding: 0.5rem;
+    }
+    .lightbox .prev { left: 30px; }
+    .lightbox .next { right: 30px; }
+    .lightbox .caption {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #fff;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+    }
+    .lightbox.show .caption { opacity: 1; transform: translateY(0); }
+
+    /* Testimonials */
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+      gap: 1.5rem;
+    }
+    .testimonial {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-style: italic;
+    }
+    body.dark .testimonial { background: #1e1e1e; }
+
+    /* Pricing */
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+      gap: 1.5rem;
+    }
+    .plan {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .plan h3 { margin-bottom: 1rem; }
+    .plan p { margin: 0.5rem 0; }
+    .plan .price { font-size: 1.5rem; margin: 1rem 0; font-weight: bold; }
+    body.dark .plan { background: #1e1e1e; }
+
+    /* FAQ */
+    .faq-item {
+      margin: 1rem 0;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem;
+      cursor: pointer;
+    }
+    .faq-item h4 { margin: 0; font-size: 1.1rem; }
+    .faq-item p {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+      margin: 0.5rem 0 0;
+    }
+    .faq-item.active p { max-height: 200px; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #fafafa;
+    }
+    body.dark footer { background: #1a1a1a; }
+    footer small { display: block; margin-top: 0.5rem; color: #666; }
+    body.dark footer small { color: #aaa; }
+    .socials a { margin: 0 0.5rem; text-decoration: none; color: #0071e3; }
+
+    .toggle-btn {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      padding: 0.6rem 1rem;
+      border: none; border-radius: 20px;
+      cursor: pointer; background: #0071e3; color: #fff;
+      font-weight: 600; z-index: 2100;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="#overview">Home</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section id="overview" class="hero">
+    <h1>Deluxe Photo Studio</h1>
+    <p>Capturing timeless moments with style and creativity.</p>
+    <a href="#portfolio" class="btn">View Portfolio</a>
+  </section>
+
+  <section id="about">
+    <h2>About Us</h2>
+    <p style="max-width: 700px; margin: auto; text-align: center;">
+      At Deluxe Photo Studio, we believe every picture tells a story. For over a decade, we’ve been
+      creating stunning wedding albums, cinematic event coverages, and professional studio portraits.
+      Our team of passionate photographers and editors ensures your memories are captured with elegance.
+    </p>
+  </section>
+
+  <section id="services">
+    <h2>Our Services</h2>
+    <div class="feature">
+      <div><h3>Wedding Photography</h3><p>Elegant, cinematic, and unforgettable wedding stories captured forever.</p></div>
+      <img src="https://picsum.photos/id/1005/600/400" alt="Wedding Photography">
+    </div>
+    <div class="feature">
+      <div><h3>Studio Portraits</h3><p>Professional lighting and setups to bring out your best self.</p></div>
+      <img src="https://picsum.photos/id/1011/600/400" alt="Studio Portraits">
+    </div>
+    <div class="feature">
+      <div><h3>Event Coverage</h3><p>From concerts to private parties — we capture the energy and essence.</p></div>
+      <img src="https://picsum.photos/id/1019/600/400" alt="Event Coverage">
+    </div>
+  </section>
+
+  <section id="portfolio">
+    <h2>Our Portfolio</h2>
+    <div class="gallery">
+      <img src="https://picsum.photos/id/1015/600/600" alt="Mountain Landscape">
+      <img src="https://picsum.photos/id/1016/600/600" alt="Beach Sunset">
+      <img src="https://picsum.photos/id/1025/600/600" alt="Classic Wedding Portrait">
+      <img src="https://picsum.photos/id/1035/600/600" alt="Modern Studio Shoot">
+      <img src="https://picsum.photos/id/1041/600/600" alt="Event Coverage Highlights">
+      <img src="https://picsum.photos/id/1049/600/600" alt="Creative Photography">
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close">&times;</span>
+    <span class="arrow prev">&#10094;</span>
+    <img src="" alt="lightbox">
+    <div class="caption"></div>
+    <span class="arrow next">&#10095;</span>
+  </div>
+
+  <section id="testimonials">
+    <h2>What Our Clients Say</h2>
+    <div class="testimonials">
+      <div class="testimonial">“Deluxe Studio made our wedding unforgettable! The photos are magical.” – Sarah & John</div>
+      <div class="testimonial">“Professional, creative, and friendly. My portraits look amazing.” – Michael R.</div>
+      <div class="testimonial">“They captured the spirit of our event perfectly. Highly recommended!” – Event Corp</div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <h2>Our Packages</h2>
+    <div class="pricing">
+      <div class="plan"><h3>Starter</h3><p>2-hour photoshoot</p><p>10 Edited Photos</p><div class="price">$199</div></div>
+      <div class="plan"><h3>Premium</h3><p>5-hour coverage</p><p>50 Edited Photos</p><div class="price">$599</div></div>
+      <div class="plan"><h3>Deluxe</h3><p>Full-day coverage</p><p>Unlimited Edits</p><div class="price">$999</div></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item"><h4>How do I book a session?</h4><p>Just contact us via email or phone, and we’ll arrange everything.</p></div>
+    <div class="faq-item"><h4>Do you travel for destination weddings?</h4><p>Yes, our team loves to travel and capture your big day worldwide.</p></div>
+    <div class="faq-item"><h4>How long before I get my photos?</h4><p>Typically, you’ll receive your edited photos within 2-3 weeks.</p></div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <p style="text-align:center;">Have a project in mind? Let’s create something amazing together.</p>
+    <p style="text-align:center;"><a href="mailto:info@deluxestudio.com" class="btn">Email Us</a></p>
+  </section>
+
+  <footer>
+    <div class="socials">
+      <a href="#">Facebook</a> | 
+      <a href="#">Instagram</a> | 
+      <a href="#">Twitter</a>
+    </div>
+    <small>© 2025 Deluxe Photo Studio. All rights reserved.</small>
+  </footer>
+
+  <button class="toggle-btn" id="darkToggle">🌙 Dark Mode</button>
+
+  <script>
+    // Scroll reveal
+    const sections = document.querySelectorAll("section");
+    function reveal() {
+      sections.forEach(sec => {
+        if (sec.getBoundingClientRect().top < window.innerHeight - 100) {
+          sec.classList.add("show");
+        }
+      });
+    }
+    window.addEventListener("scroll", reveal); window.addEventListener("load", reveal);
+
+    // Dark mode
+    const toggleBtn = document.getElementById("darkToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      toggleBtn.textContent = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+    });
+
+    // Lightbox
+    const gallery = document.querySelectorAll(".gallery img");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = lightbox.querySelector("img");
+    const caption = lightbox.querySelector(".caption");
+    const closeBtn = lightbox.querySelector(".close");
+    const prevBtn = lightbox.querySelector(".prev");
+    const nextBtn = lightbox.querySelector(".next");
+    let currentIndex = 0;
+
+    function showImage(index) {
+      currentIndex = index;
+      lightboxImg.src = gallery[index].src.replace("/600/600", "/1200/800");
+      caption.textContent = gallery[index].alt;
+      lightbox.classList.add("show");
+    }
+    gallery.forEach((img, i) => img.addEventListener("click", () => showImage(i)));
+    closeBtn.addEventListener("click", () => lightbox.classList.remove("show"));
+    prevBtn.addEventListener("click", () => showImage((currentIndex-1+gallery.length)%gallery.length));
+    nextBtn.addEventListener("click", () => showImage((currentIndex+1)%gallery.length));
+    lightbox.addEventListener("click", e => { if (e.target===lightbox) lightbox.classList.remove("show"); });
+    document.addEventListener("keydown", e => {
+      if (!lightbox.classList.contains("show")) return;
+      if (e.key==="Escape") lightbox.classList.remove("show");
+      if (e.key==="ArrowLeft") showImage((currentIndex-1+gallery.length)%gallery.length);
+      if (e.key==="ArrowRight") showImage((currentIndex+1)%gallery.length);
+    });
+
+    // FAQ accordion
+    document.querySelectorAll(".faq-item").forEach(item => {
+      item.addEventListener("click", () => item.classList.toggle("active"));
+    });
+  </script>
+</body>
+</html>
