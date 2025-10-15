@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "arsalan"
-        CONTAINER_NAME = "mudassir"
+        IMAGE_NAME = "static-site-mudassir"
+        CONTAINER_NAME =  "static-site-container-arsu"
     }
 
     stages {
